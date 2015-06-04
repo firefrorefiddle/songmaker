@@ -29,8 +29,18 @@ library
                        SongMaker.Convert.Misc
   -- other-extensions:    
   build-depends:       base >=4.7 && <4.8,
+                       regex-posix,
                        directory,
-                       filepath,
-                       regex-posix
+                       filepath
   hs-source-dirs:      src
   default-language:    Haskell2010
+
+executable songmaker
+  main-is:             songmaker.hs
+  other-modules:       SongMaker.Main
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+  build-depends:       base >=4.7 && <4.8,
+                       regex-posix,
+                       directory,
+                       filepath
