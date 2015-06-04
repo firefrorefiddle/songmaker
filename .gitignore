@@ -1,0 +1,8 @@
+*.hi
+*.dyn_hi
+*.dyn_o
+*.o
+*~
+\#*\#
+dist
+.cabal-sandbox
