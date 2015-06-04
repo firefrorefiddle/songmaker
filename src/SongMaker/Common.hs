@@ -1,6 +1,17 @@
-module SongMaker.Common where
+module SongMaker.Common
+     ( module SongMaker.Common.Song
+     , Stream, Word, Line
+     , ChordIndex
+     , ChordIndexes
+     , replaceSubStr
+     , warn
+     ) where
 
 import Data.List
+import SongMaker.Common.Song
+import Debug.Trace
+
+warn = trace
 
 type Stream = String
 type Word = String

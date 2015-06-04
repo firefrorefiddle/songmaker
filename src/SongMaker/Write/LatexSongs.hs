@@ -6,6 +6,7 @@ module SongMaker.Write.LatexSongs
 import SongMaker.Common
 
 import Data.List
+import Data.Char
 
 insertChords :: ChordIndexes -> Line -> Line
 insertChords cs l = go (reverse cs) l
@@ -20,23 +21,28 @@ insertChords cs l = go (reverse cs) l
 
 get k = filter ((==k).fst)
 
-writeHeader :: Header -> Stream
-writeHeader h = cols ++ "\\beginsong{"++titles++"}["++other++"]"
-  where titles = intercalate " \\\\ " . map snd . get "title" $ h
-        other = intercalate "," . filter (not.null) . map toSongs $ h
-        toSongs (k,v) = case mapKey k of
+writeHeader :: Song -> Stream
+writeHeader s = "\\beginsong{"++songTitle s++"}["++other++"]"
+  where other = intercalate "," . filter (not.null) . map toSongs $ others
+        toSongs (k,f) = case f s of
           Nothing -> []
-          Just k' -> k'++"={"++v++"}"
-        mapKey = flip lookup [ ("author", "by")
-                             , ("copyright", "cr")
-                             , ("reference", "sr")
-                             , ("license", "li")
-                             , ("extra-index", "index")
-                             , ("extra-title-index", "ititle")]
-        cols = case lookup "columns" h of
-                Nothing -> ""
-                Just c -> "\\songcolumns{"++c++"}"
-                 
+          Just v -> k++"={"++v++"}"
+        others = [ ("by", makeAuthor)
+                 , ("cr", songCopyright)
+                 , ("sr", songScriptureRef) ]
+        makeAuthorTM s = case (songAuthorLyrics s, songAuthorMusic s) of
+                          (Just a, Nothing) -> Just $ "T: " ++ a
+                          (Nothing, Just a) -> Just $ "M: " ++ a
+                          (Just a, Just b) -> if a `sameAs` b
+                                              then Just $ "T/M: " ++ a
+                                              else Just $ "T: " ++ a ++ ", M: " ++ b
+                          (Nothing, Nothing) -> Nothing
+        makeAuthor s = case (makeAuthorTM s, songAuthorTranslation s) of
+                        (Just a, Nothing) -> Just a
+                        (Nothing, Just a) -> Just $ "Ueb.: " ++ a
+                        (Just a, Just b) -> Just $ a ++ ", Ueb.: " ++ b
+                        (Nothing, Nothing) -> Nothing
+        sameAs a b = (words $ map toLower a) == (words $ map toLower b)
 
-writeFooter :: Header -> Stream
-writeFooter _ = "\\songcolumns{\\lmnumcols}"
+writeFooter :: Song -> Stream
+writeFooter _ = "\\endsong"

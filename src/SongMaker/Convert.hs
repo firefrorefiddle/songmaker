@@ -11,17 +11,20 @@ import Text.Regex.Posix
 import Data.Char
 import Data.List
 import Debug.Trace
+import Control.Applicative
 
 processSpecialChars = replaceSubStr "\t" "    " .
                       replaceSubStr "$" "\\brk"
 
-convertStream :: Stream -> Stream
-convertStream s = let (h, ls) = readStream s
-                  in (writeHeader h) ++
-                     "\n\\beginverse\n"++
-                     (unlines . convertLines $ ls) ++
-                     (writeFooter h)
-
+convertStream :: Stream -> Either String Stream
+convertStream s = do
+  song <- readStream s
+  return $
+    writeHeader song ++
+    unlines (concatMap convertVerse (songVerses song)) ++
+    writeFooter song ++
+    songAfter song
+  
 type Conversion = [Line] -> ([Line], [Line])
 type SimpleConversion = Line -> Line
 
@@ -43,11 +46,8 @@ always :: SimpleConversion -> (Matcher, Conversion)
 always m = smc (const True)  m
 
 conversions :: [(Matcher, Conversion)]
-conversions = [ dropEmptyEnd
-              , processChords
+conversions = [ processChords
               , always processSpecialChars
-              , processEndSong
-              , nextVerse
               , always replaceUnderscores
               ]
   where dropEmptyEnd = (all isSpace . concat, const (["\\endverse", "\\endsong"], []))
@@ -71,6 +71,16 @@ applyMC (m, c) ([], ys) = if m ys
                           else ([], ys)
 applyMC _ xys = xys
 
+convertVerse :: Verse -> [Line]
+convertVerse (Verse t lyrics) = case t of
+                                 Chorus -> "\\beginchorus" : convertLines lyrics ++
+                                           ["\\endchorus"]
+                                 Bridge -> "\\beginchorus" : convertLines lyrics ++
+                                           ["\\endchorus"]
+                                 NormalVerse -> "\\beginverse" : convertLines lyrics ++
+                                                ["\\endverse"]
+                                
+
 convertLines' :: ([Line], [Line]) -> ([Line], [Line])
 convertLines' = flip (foldl' (flip applyMC)) conversions
 
@@ -83,14 +93,3 @@ convertLines ls = let (xs, ys) = convertLines' ([], ls)
                         (y:ys') -> y:convertLines ys'
                       _ -> xs ++ convertLines ys
 
-{- convertLines [] = ["\\endverse\\endsong"]
-convertLines [x] | all isSpace x = convertLines []
-                 | otherwise = x:convertLines []
-convertLines (x:y:xs) | all isSpace x = ["\\endverse","","\\beginverse"] ++ convertLines (y:xs)
-                      | isChordsLine x = (processSpecialChars .
-                                          insertChords (chordsFromLine x) $ y) :
-                                         convertLines xs
-                      | isEndLine x = ["\\endverse\\endsong"] ++ processRest (y:xs)
-                      | otherwise = x : convertLines (y:xs)
--}
--- processRest xs = xs                                    
