@@ -66,7 +66,7 @@ readStream s =
         isLyricsLine   = not . isChordsLine
         firstLyricsLine v = case filter isLyricsLine v of
                              [] -> Nothing
-                             _ -> Just $ head . tail $ v
+                             v' -> Just . head $ v'
         stripPrefixFromLyricsLine :: String -> [Line] -> [Line]
         stripPrefixFromLyricsLine p v =
           case break isLyricsLine v of
