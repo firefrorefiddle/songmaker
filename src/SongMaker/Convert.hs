@@ -19,6 +19,15 @@ processSpecialChars = replaceSubStr "\t" "    " .
 replaceRepeatMarks = replaceSubStr "|:" "\\lrep" .
                      replaceSubStr ":|" "\\rrep"
 
+removeDashes ('-':xs) = case dropWhile (== '-') xs of
+                         [] -> ('-':xs)
+                         ('\\':'[':ys) ->
+                           let (chord, ']':zs) = break (== ']') ys
+                           in "\\["++chord ++ "]" ++ removeDashes (dropWhile (=='-') zs)
+                         (y:ys) -> y : removeDashes ys
+removeDashes (x:xs) = x : removeDashes xs
+removeDashes [] = []
+
 convertStream :: Stream -> Either String Stream
 convertStream s = do
   song <- readStream s
@@ -52,6 +61,8 @@ conversions :: [(Matcher, Conversion)]
 conversions = [ processChords
               , always processSpecialChars
               , always replaceUnderscores
+              , always replaceRepeatMarks
+              , always removeDashes
               ]
   where dropEmptyEnd = (all isSpace . concat, const (["\\endverse", "\\endsong"], []))
         processChords = ((\ls -> case ls of
