@@ -26,10 +26,15 @@ readStream s =
                  Nothing    -> Left "song has no title on songmaker import"
     let ret = Song
            { songTitle             = title 
-           , songAuthorLyrics      = lookup "lyricsBy" header
-           , songAuthorMusic       = lookup "musicBy" header
+           , songAuthorLyrics      = case lookup "author" header of
+                                      Nothing -> lookup "lyricsBy" header
+                                      Just author -> Just author
+           , songAuthorMusic       = case lookup "author" header of
+                                      Nothing -> lookup "musicBy" header
+                                      Just author -> Just author
            , songAuthorTranslation = lookup "translationBy" header
            , songCopyright         = lookup "copyright" header
+           , songLicense           = lookup "license" header
            , songScriptureRef      = lookup "reference" header
            , songKey               = lookup "key" header
            , songNumbering = case lookup "numbering" header of

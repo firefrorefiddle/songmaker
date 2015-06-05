@@ -16,6 +16,9 @@ import Control.Applicative
 processSpecialChars = replaceSubStr "\t" "    " .
                       replaceSubStr "$" "\\brk"
 
+replaceRepeatMarks = replaceSubStr "|:" "\\lrep" .
+                     replaceSubStr ":|" "\\rrep"
+
 convertStream :: Stream -> Either String Stream
 convertStream s = do
   song <- readStream s

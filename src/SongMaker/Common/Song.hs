@@ -17,6 +17,7 @@ data Song = Song
             , songAuthorMusic       :: Maybe String
             , songAuthorTranslation :: Maybe String
             , songCopyright         :: Maybe String
+            , songLicense           :: Maybe String
             , songScriptureRef      :: Maybe String
             , songKey               :: Maybe String
             , songNumbering         :: SongNumbering

@@ -39,8 +39,8 @@ writeHeader s = "\\beginsong{"++songTitle s++"}["++other++"]"
                           (Nothing, Nothing) -> Nothing
         makeAuthor s = case (makeAuthorTM s, songAuthorTranslation s) of
                         (Just a, Nothing) -> Just a
-                        (Nothing, Just a) -> Just $ "Ueb.: " ++ a
-                        (Just a, Just b) -> Just $ a ++ ", Ueb.: " ++ b
+                        (Nothing, Just a) -> Just $ "D: " ++ a
+                        (Just a, Just b) -> Just $ a ++ ", D: " ++ b
                         (Nothing, Nothing) -> Nothing
         sameAs a b = (words $ map toLower a) == (words $ map toLower b)
 
