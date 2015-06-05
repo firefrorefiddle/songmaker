@@ -1,5 +1,6 @@
 module SongMaker.Convert 
   ( convertStream
+  , convertSong
   , convertLines) where
 
 import SongMaker.Common
@@ -28,14 +29,15 @@ removeDashes ('-':xs) = case dropWhile (== '-') xs of
 removeDashes (x:xs) = x : removeDashes xs
 removeDashes [] = []
 
+convertSong :: Song -> Stream
+convertSong song =
+  writeHeader song ++
+  unlines (concatMap convertVerse (songVerses song)) ++
+  writeFooter song ++
+  songAfter song
+  
 convertStream :: Stream -> Either String Stream
-convertStream s = do
-  song <- readStream s
-  return $
-    writeHeader song ++
-    unlines (concatMap convertVerse (songVerses song)) ++
-    writeFooter song ++
-    songAfter song
+convertStream s = convertSong <$> readStream s
   
 type Conversion = [Line] -> ([Line], [Line])
 type SimpleConversion = Line -> Line
