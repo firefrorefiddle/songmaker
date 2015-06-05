@@ -29,7 +29,8 @@ writeHeader s = "\\beginsong{"++songTitle s++"}["++other++"]"
           Just v -> k++"={"++v++"}"
         others = [ ("by", makeAuthor)
                  , ("cr", songCopyright)
-                 , ("sr", songScriptureRef) ]
+                 , ("sr", songScriptureRef)
+                 , ("li", songLicense) ]
         makeAuthorTM s = case (songAuthorLyrics s, songAuthorMusic s) of
                           (Just a, Nothing) -> Just $ "T: " ++ a
                           (Nothing, Just a) -> Just $ "M: " ++ a
