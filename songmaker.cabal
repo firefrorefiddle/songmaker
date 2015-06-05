@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                songmaker
-version:             0.1.0.0
+version:             0.2.0.0
 -- synopsis:            
 -- description:         
 license:             GPL-2
@@ -26,6 +26,7 @@ library
                        SongMaker.Read.Song,
                        SongMaker.Read.Sheet,
                        SongMaker.Common,
+                       SongMaker.Common.Song,
                        SongMaker.Write.LatexSongs,
                        SongMaker.Convert.Misc
   -- other-extensions:    
