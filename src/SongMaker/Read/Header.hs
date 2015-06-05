@@ -3,16 +3,22 @@ module SongMaker.Read.Header where
 import SongMaker.Common
 import Data.Maybe
 import Data.List
+import Data.Char
 
 knownHeaders = ["title",
                 "author",
+                "lyricsBy",
+                "musicBy",
+                "translationBy",
+                "key",
                 "copyright",
                 "reference",
                 "output",
                 "license",
                 "extra-index",
                 "columns",
-                "extra-title-index"]
+                "extra-title-index",
+                "numbering"]
 
 splitEach :: (Eq a) => a -> [a] -> [[a]]
 splitEach c l = case break (== c) l of
@@ -21,9 +27,10 @@ splitEach c l = case break (== c) l of
 
 tryReadHeaderLine l = case splitEach ':' l of 
   [name, value] ->
-    let value' = stripPrefix ":" value
+    let value' = dropWhile isSpace . reverse .
+                 dropWhile (not . isAlphaNum) . reverse $ value
     in if length (words name) == 1
-       then return (head.words $ name, value)
+       then return (head.words $ name, value')
        else fail "invalid header format"
   _ -> fail "invalid header format"
                         

@@ -75,8 +75,8 @@ convertVerse :: Verse -> [Line]
 convertVerse (Verse t lyrics) = case t of
                                  Chorus -> "\\beginchorus" : convertLines lyrics ++
                                            ["\\endchorus"]
-                                 Bridge -> "\\beginchorus" : convertLines lyrics ++
-                                           ["\\endchorus"]
+                                 Bridge -> "\\beginverse*" : convertLines lyrics ++
+                                           ["\\endverse"]
                                  NormalVerse -> "\\beginverse" : convertLines lyrics ++
                                                 ["\\endverse"]
                                 
