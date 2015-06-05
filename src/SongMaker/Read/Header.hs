@@ -6,6 +6,7 @@ import Data.List
 import Data.Char
 
 knownHeaders = ["title",
+                "original",
                 "author",
                 "lyricsBy",
                 "musicBy",

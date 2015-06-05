@@ -7,6 +7,7 @@ import SongMaker.Common
 
 import Data.List
 import Data.Char
+import Control.Applicative
 
 insertChords :: ChordIndexes -> Line -> Line
 insertChords cs l = go (reverse cs) l
@@ -31,6 +32,11 @@ writeHeader s = "\\beginsong{"++songTitle s++"}["++other++"]"
                  , ("cr", songCopyright)
                  , ("sr", songScriptureRef)
                  , ("li", songLicense) ]
+        makeAuthor s = concatMaybes (\x y -> x ++ ", " ++ y)
+                       [ makeAuthorTM s
+                       , ("D: " ++) <$> songAuthorTranslation s
+                       , ("Orig.: " ++) <$> songOrigTitle s]
+
         makeAuthorTM s = case (songAuthorLyrics s, songAuthorMusic s) of
                           (Just a, Nothing) -> Just $ "T: " ++ a
                           (Nothing, Just a) -> Just $ "M: " ++ a
@@ -38,12 +44,14 @@ writeHeader s = "\\beginsong{"++songTitle s++"}["++other++"]"
                                               then Just $ "T/M: " ++ a
                                               else Just $ "T: " ++ a ++ ", M: " ++ b
                           (Nothing, Nothing) -> Nothing
-        makeAuthor s = case (makeAuthorTM s, songAuthorTranslation s) of
-                        (Just a, Nothing) -> Just a
-                        (Nothing, Just a) -> Just $ "D: " ++ a
-                        (Just a, Just b) -> Just $ a ++ ", D: " ++ b
-                        (Nothing, Nothing) -> Nothing
+
         sameAs a b = (words $ map toLower a) == (words $ map toLower b)
+
+concatMaybes f [] = Nothing
+concatMaybes f (Nothing:rest) = concatMaybes f rest
+concatMaybes f (Just x:rest) = case concatMaybes f rest of
+                                Nothing -> Just x
+                                Just y -> Just (x `f` y)
 
 writeFooter :: Song -> Stream
 writeFooter _ = "\\endsong"

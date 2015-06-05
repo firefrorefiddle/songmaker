@@ -13,6 +13,7 @@ data Verse = Verse
 
 data Song = Song
             { songTitle             :: String
+            , songOrigTitle         :: Maybe String
             , songAuthorLyrics      :: Maybe String
             , songAuthorMusic       :: Maybe String
             , songAuthorTranslation :: Maybe String
