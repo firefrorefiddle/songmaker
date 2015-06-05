@@ -16,12 +16,13 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     SongMaker.Write,
+  exposed-modules:     SongMaker
+  other-modules:       SongMaker.Write,
                        SongMaker.Convert,
                        SongMaker.Read,
                        SongMaker.IO,
                        SongMaker.Read.Header
-  other-modules:       SongMaker.Read.Chord,
+                       SongMaker.Read.Chord,
                        SongMaker.Read.Song,
                        SongMaker.Read.Sheet,
                        SongMaker.Common,

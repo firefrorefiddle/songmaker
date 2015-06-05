@@ -1,4 +1,8 @@
-module SongMaker.Common.Song where
+module SongMaker.Common.Song
+       ( SongNumbering(..)
+       , VerseType(..)
+       , Verse(..)
+       , Song(..)) where
 
 data SongNumbering = Numbered | ChorusOnly | Unnumbered
                    deriving (Read, Show, Eq)
