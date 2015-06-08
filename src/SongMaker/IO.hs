@@ -9,6 +9,7 @@ import System.Environment (getArgs)
 import System.Directory
 import System.FilePath (splitExtension, takeExtension, (</>))
 import System.IO
+import Control.Exception
 
 run :: IO ()
 run = do
@@ -23,7 +24,10 @@ actDirectory fp = do
   let cont' = map (fp </>) .
               filter ((== ".sng") . takeExtension) $
               cont  
-  mapM_ actFile cont'
+  mapM_ (\fp -> catch (actFile fp) printIOException) cont'
+
+printIOException :: IOException -> IO ()
+printIOException = hPutStrLn stderr . show
   
 actFile fp =
   case splitExtension fp of
