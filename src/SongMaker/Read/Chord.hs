@@ -50,7 +50,7 @@ isEsChord = isBaseChord . stripSuffix "es"
 
 removeSuffixes :: String -> String
 removeSuffixes w =
-  let suffixes = ["maj","min","4","6","7"]
+  let suffixes = ["maj","min","sus","4","6","7"]
   in foldr ($) w (map stripSuffix suffixes)
 
 replace _ _ [] = []
