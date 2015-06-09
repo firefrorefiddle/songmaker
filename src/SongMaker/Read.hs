@@ -48,7 +48,10 @@ readStream s =
            , songVerses = map (mkVerse ret) rawVerses
            , songAfter = if null afterSong
                          then ""
-                         else unlines (tail afterSong)}
+                         else unlines (tail afterSong)
+           , songAltTitles = map snd . filter ((== "extra-title-index").fst) $ header
+           , songLineIndexes = map snd . filter ((== "extra-index").fst) $ header
+           }
     return ret
   where nall p = not . all p
         mkVerse s v = let firstLy = firstLyricsLine v

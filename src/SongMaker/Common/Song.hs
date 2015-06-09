@@ -28,5 +28,7 @@ data Song = Song
             , songNumbering         :: SongNumbering
             , songVerses            :: [Verse]
             , songAfter             :: String
+            , songAltTitles         :: [String]
+            , songLineIndexes       :: [String]
             } deriving (Show, Eq)
 

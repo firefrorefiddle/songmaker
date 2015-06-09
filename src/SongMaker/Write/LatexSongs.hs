@@ -24,7 +24,7 @@ get k = filter ((==k).fst)
 
 writeHeader :: Song -> Stream
 writeHeader s = "\\beginsong{"++songTitle s++"}["++other++"]"
-  where other = intercalate "," . filter (not.null) . map toSongs $ others
+  where other = intercalate "," . filter (not.null) . map toSongs $ others ++ indexes
         toSongs (k,f) = case f s of
           Nothing -> []
           Just v -> k++"={"++v++"}"
@@ -32,6 +32,8 @@ writeHeader s = "\\beginsong{"++songTitle s++"}["++other++"]"
                  , ("cr", songCopyright)
                  , ("sr", songScriptureRef)
                  , ("li", songLicense) ]
+        indexes = map (\t -> ("ititle", (const $ Just t))) (songAltTitles s) ++
+                  map (\i -> ("index", (const $ Just i))) (songLineIndexes s)
         makeAuthor s = concatMaybes (\x y -> x ++ ", " ++ y)
                        [ makeAuthorTM s
                        , ("D: " ++) <$> songAuthorTranslation s
