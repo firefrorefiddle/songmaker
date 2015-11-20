@@ -5,56 +5,92 @@ module SongMaker.IO (run,
 
 import SongMaker.Convert.LatexSongs
 import SongMaker.Format.LatexSongs
+import SongMaker.Convert.Aeson
+import SongMaker.Format.Aeson
 import SongMaker.Convert.Stream
 import SongMaker.Common
 
-import System.Environment (getArgs)
+import System.Environment (getProgName, getArgs)
 import System.Directory
 import System.FilePath (splitExtension, takeExtension, (</>))
 import System.IO
 import Control.Exception
 import Control.Applicative
+import Control.Monad.Reader
 
-convLatex s = let ls :: Either String LatexStream
-                  ls = convertStream s
-              in toStream <$> ls
+data Settings = Settings
+                { getConverter :: Stream -> Either String Stream
+                , getExtension :: String
+                }
+
+latexSettings = Settings
+                (\s -> let ls :: Either String LatexStream
+                           ls = convertStream s
+                       in toStream <$> ls)
+                ".tex"
+
+jsonSettings = Settings
+               (\s -> let ls :: Either String JsonStream
+                          ls = convertStream s
+                      in toStream <$> ls)
+               ".json"
+
+type Prog = ReaderT Settings IO
 
 run :: IO ()
 run = do
   args <- getArgs
+  prog <- getProgName
   case args of
-    [] -> interact (either error id . convLatex)
-    [fp] -> actFilePath fp
-    _ -> error "Please give exactly zero or one argument (File or Directory)."
+    []         -> interact (either error id . (getConverter latexSettings))
+    ["-j"]     -> interact (either error id . (getConverter jsonSettings))
+    [fp]       -> runReaderT (actFilePath fp) latexSettings
+    ["-j", fp] -> runReaderT (actFilePath fp) jsonSettings
+    [fp, "-j"] -> runReaderT (actFilePath fp) jsonSettings
+    _ -> error $ "Usage: "++prog++" [-j] [filename]"
 
+actDirectory :: FilePath -> Prog ()
 actDirectory fp = do
-  cont <- getDirectoryContents fp
+  cont <- lift $ getDirectoryContents fp
   let cont' = map (fp </>) .
               filter ((== ".sng") . takeExtension) $
               cont  
-  mapM_ (\fp -> catch (actFile fp) printIOException) cont'
+  mapM_ (\fp -> catch' (actFile fp) (lift . printIOException)) cont'
 
 printIOException :: IOException -> IO ()
 printIOException = hPutStrLn stderr . show
-  
-actFile fp =
+
+--- I am truly left banging my head for the need of this and the next function...
+catch' :: (Exception e) => Prog a -> (e -> Prog a) -> Prog a
+catch' f h = do settings <- ask
+                lift $ catch (runReaderT f settings) (\e -> runReaderT (h e) settings)
+
+withFile' :: FilePath -> IOMode -> (Handle -> Prog r) -> Prog r
+withFile' fp m f = do settings <- ask
+                      lift $ withFile fp m (\h -> runReaderT (f h) settings)
+
+actFile :: FilePath -> Prog ()
+actFile fp = do
+  ext <- getExtension <$> ask
   case splitExtension fp of
-    (base, ".sng") -> withFile fp ReadMode $ \inh -> 
-                      withFile (base ++ ".tex") WriteMode $ \outh -> do
-                         hSetEncoding inh utf8
-                         hSetEncoding outh utf8
-                         contents <- hGetContents inh
-                         case convLatex contents of
+    (base, ".sng") -> withFile' fp ReadMode $ \inh ->
+                      withFile' (base ++ ext) WriteMode $ \outh -> do
+                         lift $ hSetEncoding inh utf8
+                         lift $ hSetEncoding outh utf8
+                         contents <- lift $ hGetContents inh
+                         conv <- getConverter <$> ask
+                         case conv contents of
                           Left err -> error err
-                          Right c' -> hPutStr outh c'
+                          Right c' -> lift $ hPutStr outh c'
     _ -> error $ "Filepath must have .sng extension: " ++ fp
 
+actFilePath :: FilePath -> Prog ()
 actFilePath fp = do
-  dir <- doesDirectoryExist fp
+  dir <- lift $ doesDirectoryExist fp
   if dir
     then actDirectory fp
     else do
-      file <- doesFileExist fp
+      file <- lift $ doesFileExist fp
       if file
         then actFile fp
         else error $ "File or Directory not found: " ++ fp
