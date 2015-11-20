@@ -4,6 +4,7 @@ module SongMaker.Write.LatexSongs
   , writeFooter) where
 
 import SongMaker.Common
+import SongMaker.Format.LatexSongs
 
 import Data.List
 import Data.Char
@@ -22,8 +23,8 @@ insertChords cs l = go (reverse cs) l
 
 get k = filter ((==k).fst)
 
-writeHeader :: Song -> Stream
-writeHeader s = "\\beginsong{"++songTitle s++"}["++other++"]"
+writeHeader :: Song -> LatexStream
+writeHeader s = liftLatex $ "\\beginsong{"++songTitle s++"}["++other++"]"
   where other = intercalate "," . filter (not.null) . map toSongs $ others ++ indexes
         toSongs (k,f) = case f s of
           Nothing -> []
@@ -55,5 +56,5 @@ concatMaybes f (Just x:rest) = case concatMaybes f rest of
                                 Nothing -> Just x
                                 Just y -> Just (x `f` y)
 
-writeFooter :: Song -> Stream
-writeFooter _ = "\\endsong"
+writeFooter :: Song -> LatexStream
+writeFooter _ = liftLatex "\\endsong"

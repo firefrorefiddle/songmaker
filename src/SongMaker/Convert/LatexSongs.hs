@@ -1,18 +1,20 @@
-module SongMaker.Convert 
-  ( convertStream
-  , convertSong
-  , convertLines) where
+module SongMaker.Convert.LatexSongs where
 
 import SongMaker.Common
 import SongMaker.Read
 import SongMaker.Write
+import SongMaker.Format.LatexSongs
 import SongMaker.Convert.Misc
+import SongMaker.Convert.Stream
 import Text.Regex.Posix
 
 import Data.Char
 import Data.List
 import Debug.Trace
 import Control.Applicative
+
+instance SongOutput LatexStream where
+  convertSong = convertSongLatex
 
 processSpecialChars = replaceSubStr "\t" "    " .
                       replaceSubStr "$" "\\brk"
@@ -29,16 +31,13 @@ removeDashes ('-':xs) = case dropWhile (== '-') xs of
 removeDashes (x:xs) = x : removeDashes xs
 removeDashes [] = []
 
-convertSong :: Song -> Stream
-convertSong song =
-  writeHeader song ++
-  unlines (concatMap convertVerse (songVerses song)) ++
-  writeFooter song ++
-  songAfter song
-  
-convertStream :: Stream -> Either String Stream
-convertStream s = convertSong <$> readStream s
-  
+convertSongLatex :: Song -> LatexStream
+convertSongLatex song = sconcat
+                        [ writeHeader song
+                        , liftLatex (unlines (concatMap convertVerse (songVerses song)))
+                        , writeFooter song
+                        , liftLatex (songAfter song)]
+    
 type Conversion = [Line] -> ([Line], [Line])
 type SimpleConversion = Line -> Line
 
@@ -108,4 +107,5 @@ convertLines ls = let (xs, ys) = convertLines' ([], ls)
                         [] -> []
                         (y:ys') -> y:convertLines ys'
                       _ -> xs ++ convertLines ys
+
 

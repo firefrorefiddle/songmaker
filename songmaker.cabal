@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                songmaker
-version:             0.2.0.1
+version:             0.2.0.2
 -- synopsis:            
 -- description:         
 license:             GPL-2
@@ -17,18 +17,20 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     SongMaker
-  other-modules:       SongMaker.Write,
-                       SongMaker.Convert,
-                       SongMaker.Read,
-                       SongMaker.IO,
-                       SongMaker.Read.Header
-                       SongMaker.Read.Chord,
-                       SongMaker.Read.Song,
-                       SongMaker.Read.Sheet,
-                       SongMaker.Common,
+  other-modules:       SongMaker.Common,
                        SongMaker.Common.Song,
-                       SongMaker.Write.LatexSongs,
-                       SongMaker.Convert.Misc
+                       SongMaker.Convert.LatexSongs,
+                       SongMaker.Convert.Misc,
+                       SongMaker.Convert.Stream,
+                       SongMaker.Format.LatexSongs,
+                       SongMaker.IO,
+                       SongMaker.Read.Chord,
+                       SongMaker.Read.Header
+                       SongMaker.Read,
+                       SongMaker.Read.Sheet,
+                       SongMaker.Read.Song,
+                       SongMaker.Write,
+                       SongMaker.Write.LatexSongs
   -- other-extensions:    
   build-depends:       base >=4.7 && <4.8,
                        regex-posix,

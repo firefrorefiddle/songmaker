@@ -3,19 +3,27 @@ module SongMaker.IO (run,
                      actFile,
                      actFilePath) where
 
-import SongMaker.Convert
+import SongMaker.Convert.LatexSongs
+import SongMaker.Format.LatexSongs
+import SongMaker.Convert.Stream
+import SongMaker.Common
 
 import System.Environment (getArgs)
 import System.Directory
 import System.FilePath (splitExtension, takeExtension, (</>))
 import System.IO
 import Control.Exception
+import Control.Applicative
+
+convLatex s = let ls :: Either String LatexStream
+                  ls = convertStream s
+              in toStream <$> ls
 
 run :: IO ()
 run = do
   args <- getArgs
   case args of
-    [] -> interact (either error id . convertStream)
+    [] -> interact (either error id . convLatex)
     [fp] -> actFilePath fp
     _ -> error "Please give exactly zero or one argument (File or Directory)."
 
@@ -36,7 +44,7 @@ actFile fp =
                          hSetEncoding inh utf8
                          hSetEncoding outh utf8
                          contents <- hGetContents inh
-                         case convertStream contents of
+                         case convLatex contents of
                           Left err -> error err
                           Right c' -> hPutStr outh c'
     _ -> error $ "Filepath must have .sng extension: " ++ fp
