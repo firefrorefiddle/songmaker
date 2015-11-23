@@ -59,13 +59,18 @@ always :: SimpleConversion -> (Matcher, Conversion)
 always m = smc (const True)  m
 
 conversions :: [(Matcher, Conversion)]
-conversions = [ processChords
+conversions = [ stripNotes
+              , processChords
               , always processSpecialChars
               , always replaceUnderscores
               , always replaceRepeatMarks
               , always removeDashes
               ]
   where dropEmptyEnd = (all isSpace . concat, const (["\\endverse", "\\endsong"], []))
+        stripNotes    = ((\ls -> case ls of
+                                  (x:xs) -> isNotesLine x
+                                  _ -> False),
+                         (\ls -> (tail ls, [])))
         processChords = ((\ls -> case ls of
                                  (x:y:xs) -> -- traceShow (x ++ " is a chords line? " ++ show (isChordsLine x)) $
                                              isChordsLine x

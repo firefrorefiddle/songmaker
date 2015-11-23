@@ -1,10 +1,12 @@
 module SongMaker.Read 
    ( module SongMaker.Read.Chord
+   , module SongMaker.Read.Notes
    , module SongMaker.Read.Song
    , readStream
    ) where
 
 import SongMaker.Read.Chord
+import SongMaker.Read.Notes
 import SongMaker.Read.Song
 import SongMaker.Read.Header
 import SongMaker.Common
@@ -77,7 +79,7 @@ readStream s =
                           "Chor.:", "Chor.", "Chor "]
         bridgePrefixes = ["Bridge:", "Bridge", "Br.:", "Br.", "Br "]
         isEndLine      = (== "***") . take 3 . dropWhile isSpace
-        isLyricsLine   = not . isChordsLine
+        isLyricsLine l = not (isChordsLine l || isNotesLine l)
         firstLyricsLine v = case filter isLyricsLine v of
                              [] -> Nothing
                              v' -> Just . head $ v'
