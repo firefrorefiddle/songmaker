@@ -6,7 +6,6 @@ import SongMaker.Write
 import SongMaker.Format.LatexSongs
 import SongMaker.Convert.Misc
 import SongMaker.Convert.Stream
-import Text.Regex.Posix
 
 import Data.Char
 import Data.List
