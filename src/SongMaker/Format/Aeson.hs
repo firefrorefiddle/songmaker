@@ -20,12 +20,15 @@ instance IsStream JsonStream where
   toStream (JS s) = s
   fromStream = liftJson
 
-instance ToJSON Song
+instance ToJSON Song where
+  toEncoding = genericToEncoding defaultOptions
 instance FromJSON Song
-instance ToJSON SongNumbering
+instance ToJSON SongNumbering where
+  toEncoding = genericToEncoding defaultOptions
 instance FromJSON SongNumbering
-instance ToJSON VerseType
+instance ToJSON VerseType where
+  toEncoding = genericToEncoding defaultOptions
 instance FromJSON VerseType
-instance ToJSON Verse
+instance ToJSON Verse where
+  toEncoding = genericToEncoding defaultOptions
 instance FromJSON Verse
-
