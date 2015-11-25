@@ -1,14 +1,9 @@
-module SongMaker.Read 
-   ( module SongMaker.Read.Chord
-   , module SongMaker.Read.Notes
-   , module SongMaker.Read.Song
-   , readStream
-   ) where
+module SongMaker.Read (readStream, module X) where
 
-import SongMaker.Read.Chord
-import SongMaker.Read.Notes
-import SongMaker.Read.Song
-import SongMaker.Read.Header
+import SongMaker.Read.Chord  as X
+import SongMaker.Read.Notes  as X
+import SongMaker.Read.Song   as X
+import SongMaker.Read.Header as X
 import SongMaker.Common
 
 import Control.Applicative
@@ -20,8 +15,9 @@ readStream :: Stream -> Either String Song
 readStream s =
   let header = readHeader s
       (verseLines, afterSong) = break isEndLine . skipHeader $ s
-      rawVerses = filter ((nall isSpace) . concat) .
-                  groupBy (\x y -> all  isSpace x && all  isSpace y ||                                   nall isSpace x && nall isSpace y) $ verseLines
+      rawVerses = filter (nall isSpace . concat) .
+                  groupBy (\x y -> all  isSpace x && all  isSpace y ||
+                                   nall isSpace x && nall isSpace y) $ verseLines
   in do
     title <- case lookup "title" header of
                  Just title -> return title
@@ -45,8 +41,7 @@ readStream s =
                               Just "numbered" -> Numbered
                               Just "chorus" -> ChorusOnly
                               Just "unnumbered" -> Unnumbered
-                              Just other -> warn ("ignoring unknown numbering " ++ other) $
-                                            Numbered
+                              Just other -> warn ("ignoring unknown numbering " ++ other) Numbered
            , songVerses = map (mkVerse ret) rawVerses
            , songAfter = if null afterSong
                          then ""
@@ -59,12 +54,10 @@ readStream s =
         mkVerse s v = let firstLy = firstLyricsLine v
                           cps = case firstLy of
                                  Nothing -> []
-                                 Just fl -> filter (`isPrefixOf` fl) $
-                                            chorusPrefixes
+                                 Just fl -> filter (`isPrefixOf` fl) chorusPrefixes
                           bps = case firstLy of
                                  Nothing -> []
-                                 Just fl -> filter (`isPrefixOf` fl) $
-                                            bridgePrefixes
+                                 Just fl -> filter (`isPrefixOf` fl) bridgePrefixes
                       in if cps /= []
                          then Verse Chorus $
                               stripPrefixFromLyricsLine (head cps) v
@@ -87,7 +80,7 @@ readStream s =
         stripPrefixFromLyricsLine p v =
           case break isLyricsLine v of
            (v, []) -> v
-           (pref, (l:rest)) ->
+           (pref, l:rest) ->
              let l' = dropWhile isSpace . fromJust . stripPrefix p $ l
              in map (drop (length l - length l')) pref ++ l' : rest
 

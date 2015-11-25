@@ -22,7 +22,7 @@ replaceRepeatMarks = replaceSubStr "|:" "\\lrep" .
                      replaceSubStr ":|" "\\rrep"
 
 removeDashes ('-':xs) = case dropWhile (== '-') xs of
-                         [] -> ('-':xs)
+                         [] -> '-':xs
                          ('\\':'[':ys) ->
                            let (chord, ']':zs) = break (== ']') ys
                            in "\\["++chord ++ "]" ++ removeDashes (dropWhile (=='-') zs)
@@ -55,7 +55,7 @@ smc :: SimpleMatcher -> SimpleConversion -> (Matcher, Conversion)
 smc m c = (sMatch m, sConv c)
 
 always :: SimpleConversion -> (Matcher, Conversion)
-always m = smc (const True)  m
+always = smc (const True)
 
 conversions :: [(Matcher, Conversion)]
 conversions = [ stripNotes
@@ -66,22 +66,22 @@ conversions = [ stripNotes
               , always removeDashes
               ]
   where dropEmptyEnd = (all isSpace . concat, const (["\\endverse", "\\endsong"], []))
-        stripNotes    = ((\ls -> case ls of
+        stripNotes    = (\ls -> case ls of
                                   (x:xs) -> isNotesLine x
-                                  _ -> False),
-                         (\ls -> (tail ls, [])))
-        processChords = ((\ls -> case ls of
+                                  _ -> False,
+                         \ls -> (tail ls, []))
+        processChords = (\ls -> case ls of
                                  (x:y:xs) -> -- traceShow (x ++ " is a chords line? " ++ show (isChordsLine x)) $
                                              isChordsLine x
-                                 _ -> False),
-                         (\(x:y:xs) -> ([], insertChords (chordsFromLine x) y : xs)))
+                                 _ -> False,
+                         \(x:y:xs) -> ([], insertChords (chordsFromLine x) y : xs))
         processEndSong = (sMatch isEndLine,
-                          (const (["\\endverse", "\\endsong"], [])))
+                          const (["\\endverse", "\\endsong"], []))
         nextVerse = (sMatch (all isSpace),
-                     (\(x:xs) -> let xs' = dropWhile (all isSpace) xs
-                                 in case xs' of
-                                     [] -> ([], [])
-                                     _  -> (["\\endverse", "\\beginverse"], xs')))
+                     \(x:xs) -> let xs' = dropWhile (all isSpace) xs
+                                in case xs' of
+                                    [] -> ([], [])
+                                    _  -> (["\\endverse", "\\beginverse"], xs'))
 
 
 applyMC :: (Matcher, Conversion) -> ([Line], [Line]) -> ([Line], [Line])

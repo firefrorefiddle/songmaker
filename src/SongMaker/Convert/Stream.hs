@@ -1,5 +1,3 @@
-{-# LANGUAGE FunctionalDependencies #-}
-
 module SongMaker.Convert.Stream
        ( IsStream
        , toStream

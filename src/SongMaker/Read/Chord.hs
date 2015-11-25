@@ -4,15 +4,17 @@ import SongMaker.Common
 
 import Data.List
 import Data.Char
+import Data.Maybe
+import Data.Ratio
 
 isChord :: Word -> Bool
 isChord = isChord' . removeSuffixes . map toLower
 
 isChordsLine :: Line -> Bool
-isChordsLine = (>0.8) . truePart . map isChord . words . removeSpecials
-  where truePart xs = let trues = fromIntegral $ length . filter (==True) $ xs
-                          falses = fromIntegral $ length . filter (==False) $ xs
-                      in trues / falses
+isChordsLine = (>= 8%10) . truePart . map isChord . words . removeSpecials
+  where truePart xs = let trues  = length . filter (==True) $ xs
+                          falses = length . filter (==False) $ xs
+                      in trues % falses
         removeSpecials = replace (`elem` ['(', ')', '/']) ' '
 
 chordsFromLine :: Line -> [(Int, Word)]
@@ -39,7 +41,7 @@ isChord' w = isBaseChord w
              || isEsChord w
 
 stripPrefix' :: (Eq a) => [a] -> [a] -> [a]
-stripPrefix' p w = maybe w id (stripPrefix p w)
+stripPrefix' p w = fromMaybe w (stripPrefix p w)
 
 stripSuffix s = reverse . stripPrefix' (reverse s) . reverse
 
@@ -51,7 +53,7 @@ isEsChord = isBaseChord . stripSuffix "es"
 removeSuffixes :: String -> String
 removeSuffixes w =
   let suffixes = ["maj","min","sus","4","6","7"]
-  in foldr ($) w (map stripSuffix suffixes)
+  in foldr stripSuffix w suffixes
 
 replace _ _ [] = []
 replace p r (x:xs) | p x       = r : replace p r xs

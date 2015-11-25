@@ -44,8 +44,7 @@ readHeaderLine = fromJust . tryReadHeaderLine
 isEndOfHeaderMarker = ("***" `isPrefixOf`)
 
 readHeader = filter known .
-             catMaybes .
-             map tryReadHeaderLine .
+             mapMaybe tryReadHeaderLine .
              takeWhile (not . isEndOfHeaderMarker) .
              lines
   where known (k,_) = k `elem` knownHeaders

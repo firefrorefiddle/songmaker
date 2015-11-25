@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveGeneric #-}
-
 module SongMaker.Format.Aeson
        ( JsonStream
        , liftJson) where

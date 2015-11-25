@@ -42,8 +42,8 @@ run = do
   args <- getArgs
   prog <- getProgName
   case args of
-    []         -> interact (either error id . (getConverter latexSettings))
-    ["-j"]     -> interact (either error id . (getConverter jsonSettings))
+    []         -> interact (either error id . getConverter latexSettings)
+    ["-j"]     -> interact (either error id . getConverter jsonSettings)
     [fp]       -> runReaderT (actFilePath fp) latexSettings
     ["-j", fp] -> runReaderT (actFilePath fp) jsonSettings
     [fp, "-j"] -> runReaderT (actFilePath fp) jsonSettings
@@ -58,7 +58,7 @@ actDirectory fp = do
   mapM_ (\fp -> catch' (actFile fp) (lift . printIOException)) cont'
 
 printIOException :: IOException -> IO ()
-printIOException = hPutStrLn stderr . show
+printIOException = hPrint stderr
 
 --- I am truly left banging my head for the need of this and the next function...
 catch' :: (Exception e) => Prog a -> (e -> Prog a) -> Prog a

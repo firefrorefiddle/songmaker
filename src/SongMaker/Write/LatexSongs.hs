@@ -11,7 +11,7 @@ import Data.Char
 import Control.Applicative
 
 insertChords :: ChordIndexes -> Line -> Line
-insertChords cs l = go (reverse cs) l
+insertChords cs = go (reverse cs)
   where toChord c = "\\[" ++ c ++ "]"
         go [] l = l
         go ((i,c):cs) l = let l' = if length l < i
@@ -33,8 +33,8 @@ writeHeader s = liftLatex $ "\\beginsong{"++songTitle s++"}["++other++"]"
                  , ("cr", songCopyright)
                  , ("sr", songScriptureRef)
                  , ("li", songLicense) ]
-        indexes = map (\t -> ("ititle", (const $ Just t))) (songAltTitles s) ++
-                  map (\i -> ("index", (const $ Just i))) (songLineIndexes s)
+        indexes = map (\t -> ("ititle", const $ Just t)) (songAltTitles s) ++
+                  map (\i -> ("index", const $ Just i)) (songLineIndexes s)
         makeAuthor s = concatMaybes (\x y -> x ++ ", " ++ y)
                        [ makeAuthorTM s
                        , ("D: " ++) <$> songAuthorTranslation s
@@ -48,7 +48,7 @@ writeHeader s = liftLatex $ "\\beginsong{"++songTitle s++"}["++other++"]"
                                               else Just $ "T: " ++ a ++ ", M: " ++ b
                           (Nothing, Nothing) -> Nothing
 
-        sameAs a b = (words $ map toLower a) == (words $ map toLower b)
+        sameAs a b = words (map toLower a) == words (map toLower b)
 
 concatMaybes f [] = Nothing
 concatMaybes f (Nothing:rest) = concatMaybes f rest
