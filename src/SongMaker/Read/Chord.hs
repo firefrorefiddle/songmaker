@@ -15,7 +15,9 @@ isChordsLine :: Line -> Bool
 isChordsLine = (>= 8%10) . truePart . map isChord . words . removeSpecials
   where truePart xs = let trues  = length . filter (==True) $ xs
                           falses = length . filter (==False) $ xs
-                      in trues % falses
+                      in if falses == 0
+                         then 1
+                         else trues % falses
         removeSpecials = replace (`elem` ['(', ')', '/']) ' '
 
 chordsFromLine :: Line -> [(Int, Word)]
