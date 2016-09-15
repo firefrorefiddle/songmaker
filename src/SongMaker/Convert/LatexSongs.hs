@@ -65,7 +65,7 @@ conversions = [ stripNotes
               , always replaceRepeatMarks
               , always removeDashes
               ]
-  where dropEmptyEnd = (all isSpace . concat, const (["\\endverse", "\\endsong"], []))
+  where --        dropEmptyEnd = (all isSpace . concat, const (["\\endverse", "\\endsong"], []))
         stripNotes    = (\ls -> case ls of
                                   (x:xs) -> isNotesLine x
                                   _ -> False,
@@ -77,12 +77,13 @@ conversions = [ stripNotes
                          \(x:y:xs) -> ([], insertChords (chordsFromLine x) y : xs))
         processEndSong = (sMatch isEndLine,
                           const (["\\endverse", "\\endsong"], []))
-        nextVerse = (sMatch (all isSpace),
+{-        nextVerse = (sMatch (all isSpace),
                      \(x:xs) -> let xs' = dropWhile (all isSpace) xs
                                 in case xs' of
                                     [] -> ([], [])
                                     _  -> (["\\endverse", "\\beginverse"], xs'))
 
+-}
 
 applyMC :: (Matcher, Conversion) -> ([Line], [Line]) -> ([Line], [Line])
 applyMC (m, c) ([], ys) = if m ys

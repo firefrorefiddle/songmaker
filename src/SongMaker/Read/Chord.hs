@@ -6,6 +6,7 @@ import Data.List
 import Data.Char
 import Data.Maybe
 import Data.Ratio
+import Prelude hiding (Word)
 
 isChord :: Word -> Bool
 isChord = isChord' . removeSuffixes . map toLower

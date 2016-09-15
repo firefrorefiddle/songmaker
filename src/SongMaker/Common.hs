@@ -10,6 +10,7 @@ module SongMaker.Common
 import Data.List
 import SongMaker.Common.Song
 import Debug.Trace
+import Prelude hiding (Word)
 
 warn = trace
 
