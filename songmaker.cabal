@@ -76,4 +76,5 @@ executable songmaker
                        bytestring,
                        aeson >= 0.10.0.0,
                        aeson-pretty,
-                       mtl
+                       mtl,
+                       aws-lambda-haskell-runtime
