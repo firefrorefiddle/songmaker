@@ -1,7 +1,9 @@
 module SongMaker.IO (run,
                      actDirectory,
                      actFile,
-                     actFilePath) where
+                     actFilePath,
+                     convertStringJson,
+                     convertStringLatex) where
 
 import SongMaker.Convert.LatexSongs
 import SongMaker.Format.LatexSongs
@@ -37,13 +39,19 @@ jsonSettings = Settings
 
 type Prog = ReaderT Settings IO
 
+convertStringLatex :: String -> Either String String
+convertStringLatex = getConverter latexSettings
+
+convertStringJson :: String -> Either String String
+convertStringJson = getConverter jsonSettings
+
 run :: IO ()
 run = do
   args <- getArgs
   prog <- getProgName
   case args of
-    []         -> interact (either error id . getConverter latexSettings)
-    ["-j"]     -> interact (either error id . getConverter jsonSettings)
+    []         -> interact (either error id . convertStringLatex)
+    ["-j"]     -> interact (either error id . convertStringJson)
     [fp]       -> runReaderT (actFilePath fp) latexSettings
     ["-j", fp] -> runReaderT (actFilePath fp) jsonSettings
     [fp, "-j"] -> runReaderT (actFilePath fp) jsonSettings
