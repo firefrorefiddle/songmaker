@@ -1,7 +1,7 @@
 module SongMaker.Read.Sheet (isSheetLine) where
 
-import SongMaker.Common
 import Data.List
+import SongMaker.Common
 
 isSheetLine :: Line -> Bool
 isSheetLine = ("|" `isPrefixOf`)

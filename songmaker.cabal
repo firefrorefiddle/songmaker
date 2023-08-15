@@ -17,7 +17,7 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     SongMaker
-  other-modules:       SongMaker.Common,
+                       SongMaker.Common,
                        SongMaker.Common.Song,
                        SongMaker.Convert.Aeson,
                        SongMaker.Convert.LatexSongs,
@@ -34,47 +34,56 @@ library
                        SongMaker.Read.Song,
                        SongMaker.Write,
                        SongMaker.Write.LatexSongs
-  -- other-extensions:    
-  build-depends:       base >=4.7,
+  extensions:          OverloadedStrings,
+                       DuplicateRecordFields
+  build-depends:       base,
                        regex-posix,
                        directory,
                        filepath,
-                       bytestring,
-                       aeson >= 0.10.0.0,
+                       aeson,
                        aeson-pretty,
+                       bytestring,
                        mtl
   hs-source-dirs:      src
   default-language:    Haskell2010
 
-executable songmaker
+executable songmaker-cli
   main-is:             Main.hs
-  hs-source-dirs:      src
+  hs-source-dirs:      cli
   default-language:    Haskell2010
-  exposed-modules:     Songmaker
-  other-modules:
-                       SongMaker.Common
-                       SongMaker.Common.Song
-                       SongMaker.Convert.Aeson
-                       SongMaker.Convert.LatexSongs
-                       SongMaker.Convert.Misc
-                       SongMaker.Convert.Stream
-                       SongMaker.Format.Aeson
-                       SongMaker.Format.LatexSongs
-                       SongMaker.IO
-                       SongMaker.Read
-                       SongMaker.Read.Chord
-                       SongMaker.Read.Notes
-                       SongMaker.Read.Header
-                       SongMaker.Read.Notes
-                       SongMaker.Read.Song
-                       SongMaker.Write
-                       SongMaker.Write.LatexSongs
-  build-depends:       base >=4.7,
+  extensions:          OverloadedStrings,
+                       DuplicateRecordFields
+  build-depends:       songmaker,
+                       base >=4.7,
                        regex-posix,
                        directory,
                        filepath,
+                       aeson,
+                       aeson-pretty,
                        bytestring,
-                       aeson >= 0.10.0.0,
+                       mtl
+                       
+executable songmaker-server
+  main-is:             Server.hs
+  hs-source-dirs:      server
+  default-language:    Haskell2010
+  other-modules:       Server.Types
+  extensions:          OverloadedStrings,
+                       DuplicateRecordFields,
+                       NoImplicitPrelude,
+                       DeriveGeneric
+  build-depends:       songmaker,
+                       base,
+                       regex-posix,
+                       directory,
+                       filepath,
+                       aeson,
                        aeson-pretty,
                        mtl,
-                       aws-lambda-haskell-runtime
+                       bytestring,
+                       servant-server,
+                       hedis,
+                       text,
+                       generic-lens,
+                       relude
+

@@ -1,5 +1,5 @@
 module Main where
 
-import SongMaker.IO
+import SongMaker
 
 main = run

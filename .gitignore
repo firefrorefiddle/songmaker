@@ -6,3 +6,4 @@
 \#*\#
 dist
 .cabal-sandbox
+dist-newstyle

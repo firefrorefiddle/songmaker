@@ -1,10 +1,10 @@
 module SongMaker.Convert.Aeson where
 
-import SongMaker.Format.Aeson
-import SongMaker.Convert.Stream
-import Data.ByteString.Lazy.Char8 (unpack)
 import Data.Aeson
 import Data.Aeson.Encode.Pretty
+import Data.ByteString.Lazy.Char8 (unpack)
+import SongMaker.Convert.Stream
+import SongMaker.Format.Aeson
 
 instance SongOutput JsonStream where
-  convertSong = liftJson . unpack . encodePretty
+    convertSong = liftJson . unpack . encodePretty
