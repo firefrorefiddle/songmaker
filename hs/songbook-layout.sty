@@ -1,0 +1,189 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{songbook-layout}[2026/04/24 Custom songbook layout]
+
+\RequirePackage{xparse}
+\RequirePackage{xcolor}
+\RequirePackage{needspace}
+\RequirePackage{etoolbox}
+\RequirePackage[T1]{fontenc}
+\RequirePackage[utf8]{inputenc}
+
+\definecolor{SongNumberBg}{gray}{0.82}
+
+% ---------- Global layout ----------
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+
+\newlength\SongLeftNumberWidth
+\setlength\SongLeftNumberWidth{3.1em}
+
+\newlength\SongHeaderGap
+\setlength\SongHeaderGap{0.45em}
+
+\newlength\SongVerseNumberWidth
+\setlength\SongVerseNumberWidth{2.5em}
+
+\newlength\SongBodyIndent
+\setlength\SongBodyIndent{3.5em}
+
+\newlength\SongVerseSep
+\setlength\SongVerseSep{1.7em}
+
+\newlength\SongLineSep
+\setlength\SongLineSep{0.15em}
+
+\newcommand{\SongTitleFont}{\sffamily\slshape\LARGE}
+\newcommand{\SongMetaFont}{\scriptsize}
+\newcommand{\SongMetaStrongFont}{\scriptsize\bfseries}
+\newcommand{\SongNumberFont}{\sffamily\bfseries\Huge}
+\newcommand{\SongLyricFont}{\rmfamily\normalsize}
+\newcommand{\SongChordFont}{\sffamily\itshape\large}
+
+% ---------- Song block ----------
+
+% Usage:
+% \BeginSong{1}{Title}{Reference}{T/M: Author}{Copyright}
+% ...
+% \EndSong
+
+\NewDocumentCommand{\BeginSong}{m m m m m}{%
+  \Needspace{9\baselineskip}%
+  \def\SongCurrentCopyright{#5}%
+  \vspace{0.5em}%
+  \hrule height 0.4pt%
+  \vspace{0.55em}%
+  \noindent
+  \hbox{%
+    \colorbox{SongNumberBg}{%
+      \hbox to \SongLeftNumberWidth{%
+        \SongNumberFont #1\hfil
+      }%
+    }%
+    \hspace{\SongHeaderGap}%
+    \vtop{%
+      \hsize=\dimexpr\linewidth-\SongLeftNumberWidth-\SongHeaderGap\relax
+      {\SongTitleFont #2\par}%
+      \vspace{0.15em}%
+      {\SongMetaFont #3\par}%
+      {\SongMetaStrongFont #4\par}%
+    }%
+  }%
+  \vspace{2.6em}%
+}
+
+\NewDocumentCommand{\EndSong}{}{%
+  \vfill
+  {\scriptsize \SongCurrentCopyright\par}%
+  \vspace{0.15em}%
+  \hrule height 0.4pt%
+  \clearpage
+}
+
+% For multiple songs per page later, replace \clearpage above
+% with a softer policy. For now it matches one-song-per-page testing.
+
+% ---------- Verse block ----------
+
+% Usage:
+% \BeginVerse{1}
+%   \SongLine{...}
+% \EndVerse
+
+\NewDocumentCommand{\BeginVerse}{m}{%
+  \Needspace{5\baselineskip}%
+  \vspace{\SongVerseSep}%
+  \noindent
+  \hbox\bgroup
+    \hbox to \SongVerseNumberWidth{\SongLyricFont #1.\hfil}%
+    \vtop\bgroup
+      \hsize=\dimexpr\linewidth-\SongVerseNumberWidth-\SongBodyIndent\relax
+      \SongLyricFont
+}
+
+\NewDocumentCommand{\EndVerse}{}{%
+    \egroup
+  \egroup
+  \par
+}
+
+% Unnumbered section, e.g. chorus/bridge.
+\NewDocumentCommand{\BeginSection}{m}{%
+  \Needspace{5\baselineskip}%
+  \vspace{\SongVerseSep}%
+  \noindent
+  \hbox\bgroup
+    \hbox to \SongVerseNumberWidth{\SongLyricFont #1\hfil}%
+    \vtop\bgroup
+      \hsize=\dimexpr\linewidth-\SongVerseNumberWidth-\SongBodyIndent\relax
+      \SongLyricFont
+}
+
+\NewDocumentCommand{\EndSection}{}{%
+    \egroup
+  \egroup
+  \par
+}
+
+% ---------- Lines ----------
+
+\NewDocumentCommand{\SongLine}{m}{%
+  \noindent #1\par\vspace{\SongLineSep}%
+}
+
+% Chord over lyric fragment.
+%
+% Usage:
+%   \Ch{C}{word}
+%
+% Important:
+% Haskell should choose the lyric fragment. Usually this is the
+% syllable/word beginning at the chord anchor.
+\NewDocumentCommand{\Ch}{m m}{%
+  \leavevmode
+  \begingroup
+  \setbox0=\hbox{{\SongLyricFont #2}}%
+  \setbox1=\hbox{{\SongChordFont #1}}%
+  \dimen0=\wd0
+  \ifdim\wd1>\dimen0
+    \dimen0=\wd1
+  \fi
+  \begin{tabular}[b]{@{}c@{}}%
+    {\SongChordFont #1}\\[-0.35ex]%
+    \hbox to \dimen0{{\SongLyricFont #2}\hfil}%
+  \end{tabular}%
+  \endgroup
+}
+
+% Chord with no lyric fragment, if unavoidable.
+\NewDocumentCommand{\ChordOnly}{m}{%
+  \leavevmode
+  \begin{tabular}[b]{@{}c@{}}%
+    {\SongChordFont #1}\\[-0.35ex]%
+    \strut
+  \end{tabular}%
+}
+
+% ---------- Repeats ----------
+
+\NewDocumentCommand{\LRep}{}{%
+  \raisebox{-0.15ex}{\textbf{|:}}\kern0.08em%
+}
+
+\NewDocumentCommand{\RRep}{}{%
+  \kern0.08em\raisebox{-0.15ex}{\textbf{:|}}%
+}
+
+% ---------- Notes ----------
+
+\NewDocumentCommand{\SongTextNote}{m}{%
+  \par\vspace{0.4em}%
+  {\small\itshape #1\par}%
+  \vspace{0.3em}%
+}
+
+\NewDocumentCommand{\SongMusicNote}{m}{%
+  \par\vspace{0.4em}%
+  {\small #1\par}%
+  \vspace{0.3em}%
+}
